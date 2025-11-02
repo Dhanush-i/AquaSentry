@@ -9,9 +9,7 @@ This project is built on a 3-role system:
 
 ---
 
-## 🖼️ Gallery
-
-**(Note: Replace the `path/to/your/image.png` links with the actual paths to your screenshots in your repository.)**
+## Gallery
 
 ### Web Portal: Home & Login
 
@@ -44,7 +42,7 @@ This project is built on a 3-role system:
 
 ---
 
-## ✨ Core Features
+## Core Features
 
 ### Platform & Workflow
 * **Role-Based Authentication:** Secure login for three distinct user roles (Citizen, Analyst, Authority).
@@ -70,7 +68,7 @@ This project is built on a 3-role system:
 
 ---
 
-## 🚀 Tech Stack
+## Tech Stack
 
 * **Backend:** **Python**, **Flask**, Flask-SQLAlchemy, Flask-Login
 * **Database:** **SQLite**
@@ -82,7 +80,7 @@ This project is built on a 3-role system:
 
 ---
 
-## ⚙️ Setup and Installation
+## Setup and Installation
 
 Follow these steps to get the full application running locally.
 
@@ -179,7 +177,7 @@ python social_media_fetcher.py
 
 ---
 
-## 🔑 Default Logins
+## Default Logins
 
 You can access the web portals using these default credentials:
 
@@ -198,6 +196,6 @@ You can access the web portals using these default credentials:
 
 ---
 
-## 📜 License
+## License
 
 This project is licensed under the MIT License - see the `LICENSE.md` file for details.
