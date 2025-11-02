@@ -8,6 +8,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from app import app, db, Report
 
+#using x api for tweets rn
 BEARER_TOKEN = "AAAAAAAAAAAAAAAAAAAAALIn4wEAAAAA%2FxYtPkgm85mBlav3JQgMNDdrD94%3DJTYjSoKDitfq3e5hctNdBV1a6yV4EawiFvETtNVBzGaYZZgsRN" 
 
 print("Loading NLP model (en_core_web_sm)...")
