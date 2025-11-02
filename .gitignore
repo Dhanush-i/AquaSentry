@@ -1,0 +1,19 @@
+# Python
+venv/
+__pycache__/
+instance/
+*.pyc
+
+# Expo (React Native)
+mobile-app/node_modules/
+mobile-app/.expo/
+mobile-app/npm-debug.log
+mobile-app/yarn-error.log
+mobile-app/.DS_Store
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db

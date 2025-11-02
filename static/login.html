@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Login - AquaSentry</title>
+    <style>
+        :root {
+            --primary-color: #005A9C;
+            --light-bg: #f8f9fa;
+            --white: #fff;
+            --text-dark: #212529;
+            --text-light: #6c757d;
+            --border-color: #dee2e6;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--white);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            width: 100%;
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        .navbar-icon {
+            width: 36px;
+            height: 36px;
+            margin-right: 0.75rem;
+            object-fit: contain;
+        }
+        
+        .login-main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            padding: 2rem;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            background-color: var(--white);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+        .login-container h2 {
+            text-align: center;
+            color: var(--text-dark);
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #004a80;
+        }
+        
+        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; max-width: 320px; }
+        .modal-content p { margin: 0 0 16px; font-size: 1.1rem; }
+        .modal-btn { padding: 10px 18px; border-radius: 6px; border: none; background-color: var(--primary-color); color: white; font-weight: 500; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <img src="imgggg/aquasentry_icon.png" alt="AquaSentry Logo" class="navbar-icon">
+            AquaSentry
+        </a>
+    </nav>
+
+    <main class="login-main">
+        <div class="login-container">
+            <form id="login-form-actual">
+                <h2>Portal Login</h2>
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        </div>
+    </main>
+
+    <div id="alert-modal" class="modal">
+        <div class="modal-content">
+            <p id="alert-message"></p>
+            <button id="alert-ok-btn" class="modal-btn">OK</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = ''; 
+
+        const modal = document.getElementById('alert-modal');
+        const modalMsg = document.getElementById('alert-message');
+        const modalOkBtn = document.getElementById('alert-ok-btn');
+        function customAlert(message) {
+            modalMsg.textContent = message;
+            modal.style.display = 'flex';
+        }
+        modalOkBtn.onclick = () => {
+            modal.style.display = 'none';
+        }
+
+        document.getElementById('login-form-actual').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch(`/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                if (response.ok) {
+                    window.location.href = '/dashboard'; 
+                } else {
+                    const data = await response.json();
+                    customAlert(`Login Failed: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                customAlert('Login failed. Could not connect to the server.');
+            }
+        });
+    </script>
+</body>
+</html>
+

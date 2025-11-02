@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authority Dashboard - AquaSentry</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #005A9C;
+            --light-bg: #f8f9fa;
+            --white: #fff;
+            --border-color: #dee2e6;
+            --text-dark: #212529;
+            --text-light: #6c757d;
+            --status-verified: #198754;
+            --status-action: #ffc107;
+            --status-false: #6c757d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+        }
+
+        nav.navbar {
+            background-color: var(--white);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .navbar-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 0.75rem;
+            object-fit: contain;
+        }
+
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+
+        main {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 2rem auto;
+        }
+
+        h1 {
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-top: 0;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background-color: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .kpi-card.verified {
+            border-color: var(--status-verified);
+        }
+
+        .kpi-card.action {
+            border-color: var(--status-action);
+        }
+
+        .kpi-card.false {
+            border-color: var(--status-false);
+        }
+
+        .kpi-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin: 0 0 0.5rem 0;
+            text-transform: uppercase;
+        }
+
+        .kpi-card-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            background-color: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            height: 400px;
+        }
+
+        .activity-log {
+            background-color: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .activity-log h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .activity-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .activity-table th,
+        .activity-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-table th {
+            background-color: var(--light-bg);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--text-light);
+        }
+
+        .activity-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25em 0.6em;
+            font-size: 0.75rem;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.375rem;
+            color: var(--white);
+        }
+
+        .status-verified {
+            background-color: var(--status-verified);
+        }
+
+        .status-action-taken {
+            background-color: var(--status-action);
+            color: var(--text-dark);
+        }
+
+        .status-false-alarm {
+            background-color: var(--status-false);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            max-width: 320px;
+        }
+
+        .modal-content p {
+            margin: 0 0 16px;
+            font-size: 1.1rem;
+        }
+
+        .modal-btn {
+            padding: 10px 18px;
+            border-radius: 6px;
+            border: none;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app-container" style="display: none;">
+        <nav class="navbar">
+            <a href="/" class="navbar-brand">
+                <img src="imgggg/aquasentry_icon.png" alt="AquaSentry Logo" class="navbar-icon">
+                AquaSentry Authority
+            </a>
+            <div class="nav-right">
+                <button id="logout-btn" class="logout-btn">Logout</button>
+            </div>
+        </nav>
+
+        <main>
+            <h1>Authority Dashboard</h1>
+
+            <div class="kpi-grid">
+                <div class="kpi-card verified">
+                    <div class="kpi-card-title">Verified Reports</div>
+                    <div class="kpi-card-value" id="kpi-verified">0</div>
+                </div>
+                <div class="kpi-card action">
+                    <div class="kpi-card-title">Actions Taken</div>
+                    <div class="kpi-card-value" id="kpi-action">0</div>
+                </div>
+                <div class="kpi-card false">
+                    <div class="kpi-card-title">False Alarms</div>
+                    <div class="kpi-card-value" id="kpi-false">0</div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="sourceChart"></canvas>
+                </div>
+            </div>
+
+            <div class="activity-log">
+                <h2>Latest Processed Activity</h2>
+                <table class="activity-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Source</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activity-table-body">
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="alert-modal" class="modal">
+        <div class="modal-content">
+            <p id="alert-message"></p>
+            <button id="alert-ok-btn" class="modal-btn">OK</button>
+        </div>
+    </div>
+
+    <script>
+        const appContainer = document.getElementById('app-container');
+        const modal = document.getElementById('alert-modal');
+        const modalMsg = document.getElementById('alert-message');
+        const modalOkBtn = document.getElementById('alert-ok-btn');
+        function customAlert(message) { modalMsg.textContent = message; modal.style.display = 'flex'; }
+        modalOkBtn.onclick = () => { modal.style.display = 'none'; }
+
+        async function fetchDashboardData() {
+            try {
+                const response = await fetch(`/api/reports/summary`);
+                if (!response.ok) {
+                    throw new Error('Could not load summary data.');
+                }
+                const summary = await response.json();
+
+                populateKPIs(summary.kpi_counts);
+                renderStatusChart(summary.kpi_counts);
+                renderSourceChart(summary.source_counts);
+                populateActivityLog(summary.latest_processed_reports);
+
+            } catch (error) {
+                console.error('Fetch chart data error:', error);
+                customAlert(error.message);
+            }
+        }
+
+        function populateKPIs(kpiData) {
+            document.getElementById('kpi-verified').textContent = kpiData.verified;
+            document.getElementById('kpi-action').textContent = kpiData.action_taken;
+            document.getElementById('kpi-false').textContent = kpiData.false_alarm;
+        }
+
+        function renderStatusChart(kpiData) {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Verified', 'Action Taken', 'False Alarm'],
+                    datasets: [{
+                        label: 'Number of Reports',
+                        data: [
+                            kpiData.verified,
+                            kpiData.action_taken,
+                            kpiData.false_alarm
+                        ],
+                        backgroundColor: [
+                            'rgba(25, 135, 84, 0.7)',
+                            'rgba(255, 193, 7, 0.7)',
+                            'rgba(108, 117, 125, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(25, 135, 84, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(108, 117, 125, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Report Status Overview (Excluding "New")', font: { size: 16 } }
+                    }
+                }
+            });
+        }
+
+        function renderSourceChart(sourceData) {
+            const ctx = document.getElementById('sourceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Crowdsource', 'Social Media'],
+                    datasets: [{
+                        data: [
+                            sourceData.Crowdsource,
+                            sourceData['Social Media']
+                        ],
+                        backgroundColor: [
+                            'rgba(0, 90, 156, 0.7)',
+                            'rgba(220, 53, 69, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(0, 90, 156, 1)',
+                            'rgba(220, 53, 69, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Processed Reports by Source', font: { size: 16 } }
+                    }
+                }
+            });
+        }
+
+        function populateActivityLog(latestReports) {
+            const tbody = document.getElementById('activity-table-body');
+            tbody.innerHTML = '';
+
+            if (latestReports.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-light);">No processed activity yet.</td></tr>';
+                return;
+            }
+
+            latestReports.forEach(report => {
+                const row = document.createElement('tr');
+                const statusClass = `status-${report.status.replace(/_/g, '-')}`;
+                const statusText = report.status.replace('_', ' ');
+
+                row.innerHTML = `
+                    <td>${report.id}</td>
+                    <td>${report.description.substring(0, 50)}${report.description.length > 50 ? '...' : ''}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${report.source}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            fetch(`/api/logout`, { method: 'POST' })
+                .then(() => { window.location.href = '/login'; })
+                .catch(err => { console.error('Logout failed', err); window.location.href = '/login'; });
+        });
+
+        fetch(`/api/check_session`)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    window.location.href = '/login';
+                }
+            })
+            .then(data => {
+                if (data && data.isLoggedIn && data.user.role === 'authority') {
+                    appContainer.style.display = 'block';
+                    fetchDashboardData();
+                } else {
+                    window.location.href = '/login';
+                }
+            })
+            .catch(error => {
+                console.error('Session check failed:', error);
+                customAlert('Could not connect to server. Is it running?');
+            });
+    </script>
+</body>
+
+</html>
