@@ -20,7 +20,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from "@react-native-community/netinfo";
 import { Ionicons } from '@expo/vector-icons';
 
-const API_BASE_URL = 'http://172.20.217.25:5000'; // <-- MAKE SURE THIS IS YOUR IP
+const API_BASE_URL = 'http://172.20.217.25:5000'; //make sure to put your own ip address here
 
 const COLORS = {
   primary: '#005A9C',
