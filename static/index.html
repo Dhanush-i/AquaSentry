@@ -628,9 +628,7 @@
                 console.error('Session check failed:', error);
                 if (error.message === 'Unauthorized') {
                     window.location.href = '/login';
-                } else {
-                    customAlert('Could not connect to server. Is it running?');
-                }
+                } 
             });
     </script>
 </body>
