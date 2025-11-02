@@ -8,6 +8,7 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename 
 from sqlalchemy import func, desc
 
+#core of the project, this project directly connects to the webpage so just run this and click on the link you get in your terminal for the webpage.
 app = Flask(__name__, instance_relative_config=True, static_folder='static', static_url_path='') 
 app.config['SECRET_KEY'] = 'a_very_secret_key_that_you_should_change'
 
